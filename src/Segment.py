@@ -2,8 +2,7 @@ import librosa
 import numpy as np
 
 class AudioSegment: 
-    def __init__(self, _tempo):
-        self._tempo = _tempo
+    def __init__(self):
         self.features = {}
         
     def load(self, path, offset, length, target_sr):
@@ -59,7 +58,10 @@ class AudioSegment:
         return perceptr, 1
     
     def tempo(self):
-        return self._tempo[0], 0
+        _tempo = librosa.beat.tempo(self.audio_data)[0]
+        if(_tempo > 170):
+            _tempo /= 2
+        return _tempo, 0
     
     def length(self):
         return len(self.audio_data), 0

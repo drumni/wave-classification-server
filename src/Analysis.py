@@ -22,10 +22,6 @@ class Analysis:
         self.rate = options.rate
         self.failed = False
 
-    def loadAudioData(self):
-        audio_data, _ = librosa.load(self.audio_path, sr=self.rate ,offset=0.5, duration=1)
-        self.tempo = librosa.beat.tempo(audio_data, sr=self.rate, max_tempo=170)
-
     def calculate(self):
         sr = librosa.get_samplerate(path=self.audio_path)
         self.length = librosa.get_duration(filename=self.audio_path, sr=sr) / 60 # self.duration = len(self.audio_data) / SAMPLE_RATE / 60
@@ -39,10 +35,10 @@ class Analysis:
         for i in range(self.segment_count):
             offset = self.offset_per_segment
 
-            segment = AudioSegment(self.tempo)
+            segment = AudioSegment()
             segment.load(self.audio_path,  offset * i, self.segment_duration, target_sr=self.rate)
                         
-            segment.calculate('duration', segment.length)
+            segment.calculate('length', segment.length)
             segment.calculate('chroma_stft', segment.chroma_stft)
             segment.calculate('rms', segment.rms)
             segment.calculate('spectral_centroid', segment.spectral_centroid)
@@ -55,5 +51,6 @@ class Analysis:
             segment.calculate('mfcc', segment.mfcc)
             
             self.segments.append(segment)
-            self.bar.update(1)
+            if(self.bar):
+                self.bar.update(1)
 
