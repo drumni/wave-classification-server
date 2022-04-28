@@ -6,6 +6,7 @@ class AudioSegment:
         self.features = {}
         
     def load(self, path, offset, length, target_sr):
+        # TODO add  reandom offset by seed
         audio_data, sr = librosa.load(path, offset=offset, duration=length, sr=target_sr)
         audio_data, _ = librosa.effects.trim(audio_data)
         self.audio_data = audio_data
@@ -29,25 +30,25 @@ class AudioSegment:
     
     def melspectrogram(self):
         melspectrogram = librosa.feature.melspectrogram(self.audio_data)
-        return librosa.amplitude_to_db(melspectrogram, ref=np.max), 1
+        return librosa.amplitude_to_db(melspectrogram, ref=np.max), 2
     
     def chroma_stft(self):
-        return np.mean(librosa.feature.chroma_stft(self.audio_data), axis=1), 1
+        return np.mean(librosa.feature.chroma_stft(self.audio_data), axis=1), 2
     
     def spectral_centroid(self):
-        return librosa.feature.spectral_centroid(self.audio_data), 1
+        return librosa.feature.spectral_centroid(self.audio_data), 2
     
     def spectral_bandwidth(self):
-        return librosa.feature.spectral_bandwidth(self.audio_data), 1
+        return librosa.feature.spectral_bandwidth(self.audio_data), 2
     
     def rolloff(self):
-        return librosa.feature.spectral_rolloff(self.audio_data), 1
+        return librosa.feature.spectral_rolloff(self.audio_data), 2
     
     def zero_crossing_rate(self):
-        return librosa.feature.zero_crossing_rate(self.audio_data), 1
+        return librosa.feature.zero_crossing_rate(self.audio_data), 2
     
     def rms(self):
-        return librosa.feature.rms(self.audio_data), 1
+        return librosa.feature.rms(self.audio_data), 2
     
     def harmony(self):
         harmony, _ = librosa.effects.hpss(self.audio_data)

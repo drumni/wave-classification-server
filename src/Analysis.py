@@ -1,5 +1,6 @@
 import librosa
-from src.Segment import AudioSegment
+from src.segment import AudioSegment
+# from DONT.Config import Config
 
 import warnings
 warnings.filterwarnings('ignore')

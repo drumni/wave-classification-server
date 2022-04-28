@@ -16,7 +16,7 @@ class Database:
         self.label = label
         self.load()
     
-    def update(self, label):
+    def updateLabel(self, label):
         self.label = label
         if not self.exsist:
             self.load()
