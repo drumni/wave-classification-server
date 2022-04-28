@@ -1,12 +1,14 @@
 import librosa
 import numpy as np
 
+np.random.seed(42)
+
 class AudioSegment: 
     def __init__(self):
         self.features = {}
         
     def load(self, path, offset, length, target_sr):
-        # TODO add  reandom offset by seed
+        # TODO add  random offset by seed
         audio_data, sr = librosa.load(path, offset=offset, duration=length, sr=target_sr)
         audio_data, _ = librosa.effects.trim(audio_data)
         self.audio_data = audio_data

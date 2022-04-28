@@ -14,8 +14,8 @@ class LibraryAnalysier:
     acceppted_audio_formats = ['wav', 'mp3'] 
     data_dir = 'data'
     
-    tracks = 2 # more track better model performance
-    segments = 10 # more segments better model performance
+    tracks = 100 # more track better model performance
+    segments = 20 # more segments better model performance
                 # too many segments (segments * seconds < track_duration)
     seconds = 3 # just use 3 or either 30 seconds
     rate = 22050 # dont change this
@@ -47,7 +47,9 @@ class LibraryAnalysier:
         self.database = Database(self.sub_dir)
         
         for index_dir, dir in enumerate(self.labels):
-            if(not self.loadFolder(dir, index_dir)):
+            if(self.loadFolder(dir, index_dir)):
+                return True
+            else:
                 continue
         
     def loadFolder(self, dir, i):
@@ -74,7 +76,9 @@ class LibraryAnalysier:
             if(self.database.count('label', genre) / self.segments >= self.tracks):
                 break
             
-            if(not self.loadFile(file_path, __bar)):
+            if(self.loadFile(file_path, __bar)):
+                return True
+            else:
                 continue
         
         __bar.close()
