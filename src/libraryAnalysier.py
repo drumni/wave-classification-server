@@ -1,6 +1,5 @@
 import os
 import json
-from typing import List
 
 from tqdm import tqdm
 
@@ -21,31 +20,30 @@ class LibraryAnalysier:
     rate = 22050 # dont change this
     seed = 42 # DONT change this
     
-    sub_dir = os.path.join(data_dir, f'{tracks}x{segments}x{seconds}')
+    data_dir = os.path.join(data_dir, f'{tracks}x{segments}x{seconds}')
 
     def save(self):
-        with open(os.path.join(self.sub_dir, 'config.json'), 'w', encoding='utf-8') as f:
+        with open(os.path.join(self.data_dir, 'config.json'), 'w', encoding='utf-8') as f:
             json.dump(self.__dict__, f, ensure_ascii=False, indent=4)
     
     def __init__(self, library='', include = None, exclude = None):
         self.include = [] if include is None else include
         self.exclude = [] if exclude is None else exclude
         self.labels = [e for e in os.listdir(library) if e not in self.exclude and e in self.include]
+        self.library = library
         print(f"Initialized library: {', '.join(self.labels)}")
-        self.loadStructureFromLibrary(library)
+        self.database = Database(self.data_dir)
         
-    # TODO load exsisting Data
+        
     def loadStructureFromFile(self, path):
         print('Import is not included yet!')
         # with open(path, 'r') as f:
         #     _options = dict(json.load(f))
         # self.__init__(options = _options)
         return
+
         
-    def loadStructureFromLibrary(self, path):
-        self.library = path
-        self.database = Database(self.sub_dir)
-        
+    def loadStructureFromLibrary(self):
         for index_dir, dir in enumerate(self.labels):
             if(self.loadFolder(dir, index_dir)):
                 return True
@@ -58,7 +56,7 @@ class LibraryAnalysier:
         if(len(files) == 0):
             print(f' -> {i + 1}.\t{genre}: empty.')
             return False
-        
+
         if(len(files) < self.tracks):
             print( f' -> {i + 1}.\t{genre}: missing {self.tracks - len(files)}')
             return False
@@ -75,12 +73,13 @@ class LibraryAnalysier:
         for file_path in files:
             if(self.database.count('label', genre) / self.segments >= self.tracks):
                 break
-            
-            if(self.loadFile(file_path, __bar)):
-                return True
+
+            if result := self.loadFile(file_path, __bar):
+                self.database.push(result, file_path)
             else:
                 continue
-        
+
+        self.database.save()
         __bar.close()
     
     def loadFile(self, file_path, __bar):
@@ -93,7 +92,5 @@ class LibraryAnalysier:
         alyis = Analysis(audio_path=file_path, options=self, _bar = __bar)
         if(alyis.failed):
             return False
-        
-        self.database.push(alyis.calculate(), file_path)
-        self.database.save()
-        return True
+
+        return alyis.calculate()
