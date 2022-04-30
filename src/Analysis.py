@@ -39,17 +39,7 @@ class Analysis:
             segment = AudioSegment()
             segment.load(self.audio_path,  offset * i, self.segment_duration, target_sr=self.rate)
                         
-            segment.calculate('length', segment.length)
-            segment.calculate('chroma_stft', segment.chroma_stft)
-            segment.calculate('rms', segment.rms)
-            segment.calculate('spectral_centroid', segment.spectral_centroid)
-            segment.calculate('spectral_bandwidth', segment.spectral_bandwidth)
-            segment.calculate('rolloff', segment.rolloff)
-            segment.calculate('zero_crossing_rate', segment.zero_crossing_rate)
-            segment.calculate('harmony', segment.harmony)
-            segment.calculate('perceptr', segment.perceptr)
-            segment.calculate('tempo', segment.tempo)
-            segment.calculate('mfcc', segment.mfcc)
+            segment.addFeatures()
             
             self.segments.append(segment)
             if(self.bar):

@@ -1,5 +1,6 @@
 import os
 import json
+import random
 
 from tqdm import tqdm
 
@@ -13,20 +14,24 @@ class LibraryAnalysier:
     acceppted_audio_formats = ['wav', 'mp3'] 
     data_dir = 'data'
     
-    tracks = 100 # more track better model performance
-    segments = 20 # more segments better model performance
+    tracks = 200 # more track better model performance
+    segments = 10 # more segments better model performance
                 # too many segments (segments * seconds < track_duration)
-    seconds = 3 # just use 3 or either 30 seconds
+    seconds = 4.2 # just use 3 or either 30 seconds
     rate = 22050 # dont change this
     seed = 42 # DONT change this
-    
-    data_dir = os.path.join(data_dir, f'{tracks}x{segments}x{seconds}')
+    random.seed(seed)
+    name = ''.join(random.sample(['Funny', 'Nice', 'Cool', 'Suspect', 'Car', 'Dog', 'Cat', 'Fish', 'Shine', 'Chilling', 'Running', 'Singing'], 3))
+    data_dir = os.path.join(data_dir, f'{name}')
 
     def save(self):
         with open(os.path.join(self.data_dir, 'config.json'), 'w', encoding='utf-8') as f:
             json.dump(self.__dict__, f, ensure_ascii=False, indent=4)
     
-    def __init__(self, library='', include = None, exclude = None):
+    def __init__(self, library='', include = None, exclude = None, segments = None):
+        if segments is not None:
+            self.segments = segments
+            
         self.include = [] if include is None else include
         self.exclude = [] if exclude is None else exclude
         self.labels = [e for e in os.listdir(library) if e not in self.exclude and e in self.include]
@@ -76,10 +81,10 @@ class LibraryAnalysier:
 
             if result := self.loadFile(file_path, __bar):
                 self.database.push(result, file_path)
+                self.database.save()
             else:
                 continue
 
-        self.database.save()
         __bar.close()
     
     def loadFile(self, file_path, __bar):

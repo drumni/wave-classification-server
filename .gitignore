@@ -143,6 +143,8 @@ backup/
 
 # Database
 data/
+!data/RunningNiceFunny/db.csv
+
 
 # VS Code
 .vscode/*
@@ -151,3 +153,4 @@ data/
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+
