@@ -4,7 +4,7 @@ import numpy as np
 np.random.seed(42)
 
 
-class AudioSegment:
+class Segment:
     def __init__(self):
         self.features = {}
         self.results = {}
@@ -17,57 +17,46 @@ class AudioSegment:
 
     def calculate(self, name ,function, state=None):
         result = function() if type(function) == type(self.calculate) else function
-        
-        if state != None:
+
+        if state is None:
             state = len(np.array(result).shape)
-
         self.results[name] = result
-
-        if state == -1:
-            valueValue = np.mean(result)
-            self.features[f'{name}_var'] = np.var(value)
-            self.features[f'{name}_mean'] = np.mean(value)
-        elif state == 0:
+        if state == 0:
             self.features[name] = result
         elif state == 1:
-            self.features[f'{name}_var'] = np.var(result)
-            self.features[f'{name}_mean'] = np.mean(result)
+            self.features[f'{name}_var'] = np.var(result, dtype=np.float64)
+            self.features[f'{name}_mean'] = np.mean(result, dtype=np.float64)
         elif state == 2:
             for i, value in enumerate(result):
-                self.features[f'{name}{i+1}_var'] = np.var(value)
-                self.features[f'{name}{i+1}_mean'] = np.mean(value)
-        elif state == 3:
-            for i, value in enumerate(result):
-                valueValue = np.mean(value)
-                self.features[f'{name}{i+1}_var'] = np.var(valueValue)
-                self.features[f'{name}{i+1}_mean'] = np.mean(valueValue)
+                self.features[f'{name}{i+1}_var'] = np.var(value, dtype=np.float64)
+                self.features[f'{name}{i+1}_mean'] = np.mean(value, dtype=np.float64)
+        else:
+            raise ValueError(f'Invalid state {state}')
 
     def addFeatures(self):
-        # self.calculate('harmonic', self.harmonic) just harmonic audio sample
-        # self.calculate('chroma_custom', self.chroma_custom, 2)
-        # self.calculate('melspectrogram', self.melspectrogram) not good
-        self.calculate('rms', self.rms, 1) # TODO more prozessing
-        self.calculate('length', self.length, 0)
-        
-        self.calculate('tonnetz', self.tonnetz, 1)
         self.calculate('mfcc', self.mfcc, 2)
-        self.calculate('chroma', self.chroma, 2)
-        self.calculate('chroma_stft', self.chroma_stft, 2) 
-        self.calculate('spectral_centroid', self.spectral_centroid, 1)
-        self.calculate('spectral_contrast', self.spectral_contrast, -1)
-        self.calculate('spectral_bandwidth', self.spectral_bandwidth, 1)
-        self.calculate('spectral_rolloff', self.spectral_rolloff, 1)
-        self.calculate('zero_crossing_rate', self.zero_crossing_rate, 1)
-        # self.calculate('zero_crossing_rate_perc', self.zero_crossing_rate_perc, 1)
-        self.calculate('harmony', self.harmony, 1)
-        self.calculate('tempo', self.tempo, 0)
-        # self.calculate('chroma_harmony', self.chroma_harmony, 2)
+        self.calculate('chroma_stft', self.chroma_stft, 2)
+        self.calculate('mfcc_delta', self.mfcc_delta, 2)
+        self.calculate('mfcc_delta_delta', self.mfcc_delta_delta, 2)
+        self.calculate('mfcc_perc', self.mfcc_perc, 2)
+        self.calculate('mfcc_harmony', self.mfcc_harmony, 2)
+        # self.calculate('rms', self.rms, 1) # TODO more prozessing
+        # self.calculate('length', self.length, 0)
+        # self.calculate('tonnetz', self.tonnetz, 1)
+        # self.calculate('mfcc', self.mfcc, 2)
+        # self.calculate('chroma_stft', self.chroma_stft, 1)
+        # self.calculate('spectral_centroid', self.spectral_centroid, 1)
+        # self.calculate('spectral_contrast', self.spectral_contrast, 1)
+        # self.calculate('spectral_bandwidth', self.spectral_bandwidth, 1)
+        # self.calculate('spectral_rolloff', self.spectral_rolloff, 1)
+        # self.calculate('zero_crossing_rate', self.zero_crossing_rate, 1)
+        # self.calculate('tempo', self.tempo, 0)
 
     tonnetz_ = None
     def tonnetz(self):
         if self.tonnetz_ is not None:
             return self.tonnetz_
-        self.tonnetz_ = librosa.feature.tonnetz(y=self.harmonic(), sr=self.rate, chroma=self.chroma_custom())
+        self.tonnetz_ = librosa.feature.tonnetz(y=self.harmonic())
         return self.tonnetz_
 
     harmonic_ = None
@@ -83,6 +72,34 @@ class AudioSegment:
             return self.mfcc_
         self.mfcc_ = librosa.feature.mfcc(y=self.audio_data, sr=self.rate)
         return self.mfcc_
+
+    mfcc_delta_ = None
+    def mfcc_delta(self):
+        if self.mfcc_delta_ is not None:
+            return self.mfcc_delta_
+        self.mfcc_delta_ = librosa.feature.delta(y=self.mfcc(), order = 1)
+        return self.mfcc_delta_
+    
+    mfcc_delta_delta_ = None
+    def mfcc_delta_delta(self):
+        if self.mfcc_delta_delta_ is not None:
+            return self.mfcc_delta_delta_
+        self.mfcc_delta_delta_ = librosa.feature.delta(y=self.mfcc(), order = 2)
+        return self.mfcc_delta_delta_
+
+    mfcc_harmony_ = None
+    def mfcc_harmony(self):
+        if self.mfcc_harmony_ is not None:
+            return self.mfcc_harmony_
+        self.mfcc_harmony_ = librosa.feature.mfcc(y=self.harmony(), sr=self.rate, n_mfcc=40)[-20:]
+        return self.mfcc_harmony_
+    
+    mfcc_perc_ = None
+    def mfcc_perc(self):
+        if self.mfcc_perc_ is not None:
+            return self.mfcc_perc_
+        self.mfcc_perc_ = librosa.feature.mfcc(y=self.perc(), sr=self.rate, n_mfcc=40, lifter=2 * 40)
+        return self.mfcc_perc_
 
     melspectrogram_ = None
     def melspectrogram(self):
@@ -162,10 +179,6 @@ class AudioSegment:
         self.zero_crossing_rate_ = librosa.feature.zero_crossing_rate(self.audio_data)
         return self.zero_crossing_rate_
 
-    def zero_crossing_rate_perc(self):
-        self.zero_crossing_rate_perc_ = librosa.feature.zero_crossing_rate(self.perceptr())
-        return self.zero_crossing_rate_
-
     rms_ = None
     def rms(self):
         if self.rms_ is not None:
@@ -180,21 +193,21 @@ class AudioSegment:
         self.hpss()
         return self.harmony_
 
-    perceptr_ = None
-    def perceptr(self):
-        if self.perceptr_ is not None:
-            return self.perceptr_
+    perc_ = None
+    def perc(self):
+        if self.perc_ is not None:
+            return self.perc_
         self.hpss()
-        return self.perceptr_
+        return self.perc_
 
     def hpss(self):
-        self.harmony_, self.perceptr_ = librosa.effects.hpss(y = self.audio_data)
+        self.harmony_, self.perc_ = librosa.effects.hpss(y = self.audio_data)
 
     tempo_ = None
     def tempo(self):
         if self.tempo_ is not None:
             return self.tempo_
-        _tempo = librosa.beat.tempo(self.perceptr())[0]
+        _tempo = librosa.beat.tempo(self.audio_data)[0]
         if(_tempo > 170):
             _tempo /= 2
         self.tempo_ = _tempo

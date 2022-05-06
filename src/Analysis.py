@@ -1,6 +1,5 @@
 import librosa
-from src.segment import AudioSegment
-# from DONT.Config import Config
+from src.segment import Segment
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -33,10 +32,11 @@ class Analysis:
         return [segment.features for segment in self.segments]
 
     def addFeatures(self):
+        # TODO select feature segment (drop, breakpoint, building)
         for i in range(self.segment_count):
             offset = self.offset_per_segment
 
-            segment = AudioSegment()
+            segment = Segment()
             segment.load(self.audio_path,  offset * i, self.segment_duration, target_sr=self.rate)
                         
             segment.addFeatures()
