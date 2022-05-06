@@ -2,21 +2,19 @@ import librosa
 import numpy as np
 
 np.random.seed(42)
-
-
 class Segment:
     def __init__(self):
         self.features = {}
         self.results = {}
 
-    def load(self, path, offset, length, target_sr):
+    def loadAudio(self, path, offset, length, target_sr):
         # TODO add  random offset by seed
         self.audio_data, self.rate = librosa.load(
             path, offset=offset, duration=length, sr=target_sr)
         # self.audio_data, _ = librosa.effects.trim(self.audio_data) # TODO check effects!
 
-    def calculate(self, name ,function, state=None):
-        result = function() if type(function) == type(self.calculate) else function
+    def addFeature(self, name ,function, state=None):
+        result = function() if type(function) == type(self.addFeature) else function
 
         if state is None:
             state = len(np.array(result).shape)
@@ -33,24 +31,23 @@ class Segment:
         else:
             raise ValueError(f'Invalid state {state}')
 
-    def addFeatures(self):
-        self.calculate('mfcc', self.mfcc, 2)
-        self.calculate('chroma_stft', self.chroma_stft, 2)
-        self.calculate('mfcc_delta', self.mfcc_delta, 2)
-        self.calculate('mfcc_delta_delta', self.mfcc_delta_delta, 2)
-        self.calculate('mfcc_perc', self.mfcc_perc, 2)
-        self.calculate('mfcc_harmony', self.mfcc_harmony, 2)
-        # self.calculate('rms', self.rms, 1) # TODO more prozessing
-        # self.calculate('length', self.length, 0)
-        # self.calculate('tonnetz', self.tonnetz, 1)
-        # self.calculate('mfcc', self.mfcc, 2)
-        # self.calculate('chroma_stft', self.chroma_stft, 1)
-        # self.calculate('spectral_centroid', self.spectral_centroid, 1)
-        # self.calculate('spectral_contrast', self.spectral_contrast, 1)
-        # self.calculate('spectral_bandwidth', self.spectral_bandwidth, 1)
-        # self.calculate('spectral_rolloff', self.spectral_rolloff, 1)
-        # self.calculate('zero_crossing_rate', self.zero_crossing_rate, 1)
-        # self.calculate('tempo', self.tempo, 0)
+    def loadFeatures(self):
+        self.addFeature('length', self.length, 0)
+        self.addFeature('tempo', self.tempo, 0)
+        
+        # self.addFeature('mfcc', self.mfcc, 2)
+        self.addFeature('chroma_stft', self.chroma_stft, 2)
+        self.addFeature('mfcc_delta', self.mfcc_delta, 2)
+        self.addFeature('mfcc_delta_delta', self.mfcc_delta_delta, 2)
+        self.addFeature('mfcc_perc', self.mfcc_perc, 2)
+        self.addFeature('mfcc_harmony', self.mfcc_harmony, 2)
+        self.addFeature('rms', self.rms, 1) # TODO more prozessing
+        self.addFeature('tonnetz', self.tonnetz, 1)
+        self.addFeature('spectral_centroid', self.spectral_centroid, 1)
+        self.addFeature('spectral_contrast', self.spectral_contrast, 1)
+        self.addFeature('zero_crossing_rate', self.zero_crossing_rate, 1)
+        self.addFeature('spectral_bandwidth', self.spectral_bandwidth, 1)
+        self.addFeature('spectral_rolloff', self.spectral_rolloff, 1)
 
     tonnetz_ = None
     def tonnetz(self):
@@ -77,14 +74,14 @@ class Segment:
     def mfcc_delta(self):
         if self.mfcc_delta_ is not None:
             return self.mfcc_delta_
-        self.mfcc_delta_ = librosa.feature.delta(y=self.mfcc(), order = 1)
+        self.mfcc_delta_ = librosa.feature.delta(self.mfcc(), order = 1)
         return self.mfcc_delta_
     
     mfcc_delta_delta_ = None
     def mfcc_delta_delta(self):
         if self.mfcc_delta_delta_ is not None:
             return self.mfcc_delta_delta_
-        self.mfcc_delta_delta_ = librosa.feature.delta(y=self.mfcc(), order = 2)
+        self.mfcc_delta_delta_ = librosa.feature.delta(self.mfcc(), order = 2)
         return self.mfcc_delta_delta_
 
     mfcc_harmony_ = None

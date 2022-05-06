@@ -2,7 +2,7 @@ from PyQt5.QtCore import QCoreApplication, QDir, QPoint, Qt, QUrl
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtWidgets import  QMainWindow, QApplication, QFileDialog, QHBoxLayout, QLabel, QMessageBox, QPushButton, QSizePolicy, QSlider, QSpacerItem, QStyle, QVBoxLayout, QWidget
 
-from Prediction import Prediction
+from src.core.Prediction import Prediction
 
 import sys
 import os
@@ -18,7 +18,7 @@ class PredictionManager(QMainWindow):
     def __init__(self, parent=None):
         super().__init__()
         
-        self.pred = Prediction()
+        self.pred = Prediction(segments = 3, tracks = 100, offset = 30, seconds = 30, batch_size = 128)
         self.pred.load()
         
         # Window size
@@ -138,11 +138,14 @@ class PredictionManager(QMainWindow):
         fileName = os.path.join(self.folderName, self.pred.files[i])
         self.pred.files.pop(i)
         
+        if(os.path.splitext(fileName)[-1] not in ['.wav', '.mp3']):
+            self.predictFile(i)
+            return
         
         # Load Audio
         self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(fileName)))
         self.playButton.setEnabled(True)
-
+        
         # Load Analysis
         q = self.pred.loadLabel(fileName)
         results = self.loadBetterGuess(q.T)
@@ -199,7 +202,7 @@ class PredictionManager(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    with open('style.css', 'r') as file:
+    with open('./styles/style.css', 'r') as file:
         data = file.read().replace('\n', ' ')
         app.setStyleSheet(data)
 

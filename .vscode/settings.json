@@ -7,5 +7,12 @@
         "**/.DS_Store": true,
         "**/Thumbs.db": true
     },
-    "explorerExclude.backup": null
+    "explorerExclude.backup": null,
+    "python.languageServer": "Pylance",
+    "python.autoComplete.extraPaths": [
+        "D:/Devtools/miniconda/python.exe"
+        ],
+        "python.analysis.extraPaths": [
+            "D:/Devtools/miniconda/python.exe"
+        ],
 }

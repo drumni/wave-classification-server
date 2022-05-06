@@ -4,20 +4,31 @@ from tqdm.std import tqdm
 import os
 
 class Base:
-    data_dir = 'data'
-    
-    tracks = 2
-    segments = 3
-    seconds = 30
-    rate = 22050
-    
     SAVE_ENABLED = True
-    
-    def __init__(self):
+    def __init__(self, segments = 10, tracks = 100, offset = 0, seconds = 3, rate = 22050, batch_size = 128):
+        self.tracks = tracks
+        self.segments = segments
+        self.offset = offset
+        self.seconds = seconds
+        self.rate = rate
+        
+        # [32, 64] - CPU
+        # [128, 256] - GPU for more boost
+        self.batch_size = batch_size
+        
+        self.data_dir = os.path.join('data',f's-{seconds}')
+        print(f'Data Directory: {self.data_dir}')
+        
         self.df = DataFrame(columns=['filename'])
         self.library = {}
         self.database = {}
         # pass
+    
+    def generateInformation(self):
+        print("Dataset has",self.df.shape)
+        print("Count of Positive and Negative samples")
+        print("Columns with NA values are",list(self.df.columns[self.df.isnull().any()]))
+        print(self.df.label.value_counts().reset_index())
     
     def normalizeDataFrame(self):  # sourcery skip: avoid-builtin-shadow
         min = self.df.label.value_counts().min()
@@ -78,15 +89,18 @@ class Base:
         if(len(self.library[label]) < self.tracks):
             print(f' -> {label}: library missing {self.tracks - len(self.library[label])} files.')
             # return False
-
+        
         if(self.getCountInsideDataFrame("label", label) / self.segments >= self.tracks):
             print(f' -> {label}: dataframe satisfied with {self.getCountInsideDataFrame("label", label)} rows.')
             return False
     
         return True
     
-    def loadProgressBar(self, label, init = 0) -> tqdm:
-        return tqdm(total=self.segments * len(self.library[label]), desc=label, bar_format="{desc}\t{bar:20} {n_fmt}/{total_fmt} [{elapsed} -> {remaining}]", initial=init)
+    def loadProgressBar(self, label, init = 0, max = 0) -> tqdm:
+        # sourcery skip: avoid-builtin-shadow
+        if max == 0:
+            max = self.segments * self.tracks
+        return tqdm(total=max, desc=label, bar_format="{desc}\t{bar:20} {n_fmt}/{total_fmt} [{elapsed} -> {remaining}]", initial=init)
 
     def getFilename(self, filename, i = ''):
         words = os.path.splitext(filename)

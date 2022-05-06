@@ -1,8 +1,8 @@
-from Base import Base
+from src.core.Base import Base
 
 import os
 import random
-from src.analysis import Analysis
+from src.tools.Analysis import Analysis
 
 random.seed(42)
 
@@ -31,9 +31,9 @@ class Classification(Base):
         self.library[label] = loadFolderFiles(os.path.join(self.libary_dir, label))
         self.loadDataFrameFile()
         if self.validateFolder(label):
-            progress_bar = self.loadProgressBar(label, init=self.getCountInsideDataFrame('label', label))
+            progress_bar = self.loadProgressBar(label, init=self.getCountInsideDataFrame('label', label), max=(self.segments*self.tracks))
             # max_files = len(self.library[label])
-            while self.tracks * self.segments != self.getCountInsideDataFrame('label', label):
+            while self.tracks * self.segments > self.getCountInsideDataFrame('label', label):
                 file_path = self.selectRandomFile(label)
                 filename = os.path.basename(file_path).replace(' ', '_')
                 if self.validateFile(file_path, filename):
@@ -52,7 +52,7 @@ class Classification(Base):
         alyis = Analysis(audio_path=file_path, options=self, _bar = progress_bar)
         if(alyis.failed == True):
             return False
-        return alyis.calculate()
+        return alyis.loadFeatures()
     
     def selectRandomFile(self, label):
         random.shuffle(self.library[label])
