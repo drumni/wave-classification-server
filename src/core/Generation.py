@@ -17,15 +17,17 @@ def loadFolderFiles(dirName) -> list:
             allFiles.append(fullPath)
     return allFiles
 
-class Classification(Base):
+class Generation(Base):
     def loadAudioLibrary(self, path):
         self.libary_dir = path
         self.labels = os.listdir(path)
         for dir in self.labels:
             # print(f'Loading Folder {dir}:')
             self.loadFolder(dir)
-    
+        self.saveDataFrame()
+        
     def loadFolder(self, label):
+        self.SAVE_ENABLED = True
         self.library[label] = []
         self.database[label] = []
         self.library[label] = loadFolderFiles(os.path.join(self.libary_dir, label))
@@ -35,6 +37,8 @@ class Classification(Base):
             # max_files = len(self.library[label])
             while self.tracks * self.segments > self.getCountInsideDataFrame('label', label):
                 file_path = self.selectRandomFile(label)
+                if file_path is None:
+                    break
                 filename = os.path.basename(file_path).replace(' ', '_')
                 if self.validateFile(file_path, filename):
                     # print(f'    Loading file: {file_path}')
@@ -44,16 +48,15 @@ class Classification(Base):
                             self.database[label].append(results)
                         self.updateDataFrame()
                         self.saveDataFrame()
-                    else:
-                        print(f'Error loading file: {file_path}')
             progress_bar.close()
             
     def loadFile(self, file_path, progress_bar):
         alyis = Analysis(audio_path=file_path, options=self, _bar = progress_bar)
-        if(alyis.failed == True):
-            return False
         return alyis.loadFeatures()
     
     def selectRandomFile(self, label):
         random.shuffle(self.library[label])
+        if len(self.library[label]) <= 1:
+            return None
+        
         return self.library[label].pop().replace('\\', '/')

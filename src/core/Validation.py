@@ -54,8 +54,8 @@ class Validation(Base):
         data = self.df
         from sklearn.ensemble import GradientBoostingClassifier
         gb = GradientBoostingClassifier(n_estimators=100, max_depth=3, min_samples_leaf=4, max_features=0.2, random_state=0)
-        gb.fit(data.drop(["label", "filename"],axis=1), data.label)
-        features = data.drop(["label", "filename"],axis=1).columns.values
+        gb.fit(data.drop(["label", "filename", 'index'],axis=1), data.label)
+        features = data.drop(["label", "filename", 'index'],axis=1).columns.values
         print("----- Training Done -----")
         
         # Scatter plot 
@@ -128,25 +128,7 @@ class Validation(Base):
         py.iplot(fig1)
         fig1.write_image(os.path.join(self.data_dir, "FeatureImportance_BarPlot.png"))
     
-    def generateHeadMap(self):
-        ################################################################
-        # Each square shows the correlation between the variables on each axis. 
-        # Correlation ranges from -1 to +1. 
-        # Values closer to zero means there is no linear trend between the two variables. 
-        # The close to 1 the correlation is the more positively correlated they are; 
-        # that is as one increases so does the other 
-        # and the closer to 1 the stronger this relationship is. 
-        # A correlation closer to -1 is similar, 
-        # but instead of both increasing one variable will decrease as the other increases. 
-        # The diagonals are all 1/dark green 
-        # because those squares are correlating each variable to itself.
-        #  -> so it's a perfect correlation. 
-        #  For the rest the larger the number and darker the color the higher the correlation 
-        #  between the two variables. 
-        #  The plot is also symmetrical about the diagonal since the same two variables 
-        #  are being paired together in those squares.
-        ################################################################
-        
+    def generateHeadMapMean(self):
         # Computing the Correlation Matrix
         spike_cols = [col for col in self.df.columns if 'mean' in col]
         corr = self.df[spike_cols].corr()
@@ -161,22 +143,45 @@ class Validation(Base):
         cmap = sns.diverging_palette(0, 25, as_cmap=True, s = 90, l = 45, n = 5)
 
         # Draw the heatmap with the mask and correct aspect ratio
-        sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
+        sns.heatmap(corr, mask=mask, cmap=cmap, vmax=1, vmin=-1, center=0,
                     square=True, linewidths=.5, cbar_kws={"shrink": .5})
 
         plt.title('Correlation Heatmap (for the MEAN variables)', fontsize = 20)
         plt.xticks(fontsize = 10)
         plt.yticks(fontsize = 10)
 
-        plt.savefig(os.path.join(self.data_dir, "CorrelationHeatmapPlot.png"))
-    
+        plt.savefig(os.path.join(self.data_dir, "CorrelationHeatmapPlotMean.png"))
+        
+    def generateHeadMapVar(self):
+        # Computing the Correlation Matrix
+        spike_cols = [col for col in self.df.columns if 'var' in col]
+        corr = self.df[spike_cols].corr()
+
+        # Generate a mask for the upper triangle
+        mask = np.triu(np.ones_like(corr, dtype=np.bool))
+
+        # Set up the matplotlib figure
+        f, ax = plt.subplots(figsize=(16, 11))
+
+        # Generate a custom diverging colormap
+        cmap = sns.diverging_palette(0, 25, as_cmap=True, s = 90, l = 45, n = 5)
+
+        # Draw the heatmap with the mask and correct aspect ratio
+        sns.heatmap(corr, mask=mask, cmap=cmap, vmax=1, vmin=-1, center=0,
+                    square=True, linewidths=.5, cbar_kws={"shrink": .5})
+
+        plt.title('Correlation Heatmap (for the VAR variables)', fontsize = 20)
+        plt.xticks(fontsize = 10)
+        plt.yticks(fontsize = 10)
+
+        plt.savefig(os.path.join(self.data_dir, "CorrelationHeatmapPlotVar.png"))
 
         
     def generateOldPCACharts(self):
         data = self.df
         y = data['label']
         X = data
-        X.drop(['label', 'filename', 'length'], axis=1, inplace=True)
+        X.drop(['label', 'filename'], axis=1, inplace=True)
         
         # normalize
         cols = X.columns

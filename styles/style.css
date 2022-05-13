@@ -1,85 +1,157 @@
-QWidget {
-  background: #141010;
-  border-top-left-radius: 30px;
-  border-bottom-left-radius: 30px;
-  border-top-right-radius: 30px;
-  border-bottom-right-radius: 30px;
+QComboBox {
+  padding: 4px;
+  border: 0px solid;
+  border-radius: 5px;
+  background-color: color(button-enabled);
+  selection-background-color: magenta;
+  selection-color: color(text);
+  color: color(text);
+}
+
+QComboBox QAbstractItemView {
+  selection-background-color: color(button-enabled);
+  background-color: color(button-disabled);
+  selection-color: color(text);
+  color: color(text);
+}
+
+QComboBox:on {
+  background-color: color(button-hover);
+}
+
+QComboBox:hover {
+  background-color: color(button-hover);
+}
+
+QComboBox::drop-down {
+  background-color: color(button-enabled);
+  border: 0px solid;
+  border-bottom-right-radius: 5;
+  border-top-right-radius: 5;
+}
+
+QComboBox::down-arrow {
+  padding: 5px;
+  image: url(C:/Users/robin/.mega/Coding/Python/Genre-Classification/img/icons/arrow-down_small.png);
+}
+
+QComboBox::down-arrow:on {
+  padding: 3px;
+}
+
+QWidget#window {
+  background-color: color(background);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+QWidget#playerContainer {
+  background-color: color(background-player);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+QWidget#toolbarContainer {
+  background-color: color(background-toolbar);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+QLabel#trackCover {
+  background-color: color(background-player);
+  border-radius: 20px;
 }
 
 QPushButton:enabled {
   border-style: none;
   border-radius: 5px;
-  color: #ffffff;
   padding: 2px;
-  background-color: #570d0d;
+  background-color: color(button-enabled);
 }
 
 QPushButton:hover {
-  color: #d3dae3;
-  background-color: #4b0534;
+  background-color: color(button-hover);
 }
 
 QPushButton:pressed {
-  color: #d3dae3;
-  background-color: #5e002c;
+  background-color: color(button-pressed);
 }
 
 QPushButton:disabled {
-  color: #d3dae3;
-  background-color: #111111;
+  border-style: none;
+  border-radius: 5px;
+  padding: 2px;
+  color: #998367;
+  background-color: color(button-disabled);
 }
 
-QSlider::groove:horizontal {
+QPushButton#labelButtons {
+  padding: 10px;
+  text-align: left;
+}
+
+QPushButton#playButton {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+QPushButton#toolbarButton {
+  height: 28px;
+  width: 28px;
+  border-radius: 14px;
+}
+
+QSlider#positionSlider:horizontal {
+  background-color: color(background-player);
+}
+
+QSlider#positionSlider::groove:horizontal {
+  background-color: color(background-player);
   height: 5px;
-  background-color: #1f0115;
-}
-QSlider::groove:vertical {
-  width: 5px;
-  background-color: #1f0115;
+  border-radius: 2px;
 }
 
-QSlider::handle:horizontal {
-  background: #1a2224;
+QSlider#positionSlider::handle:hover:horizontal {
+  background: color(button-hover);
+}
+
+QSlider#positionSlider::handle:horizontal {
+  background: color(button-enabled);
   border-style: none;
   width: 7px;
   margin: -5px 0;
-  border-radius: 7px;
-}
-QSlider::handle:vertical {
-  background: #1a2224;
-  border-style: none;
-  height: 7px;
-  margin: 0 -5px;
-  border-radius: 7px;
+  border-radius: 2px;
 }
 
-QSlider::add-page:horizontal {
-  background: #1f1f1f;
-}
-QSlider::add-page:vertical {
-  background: #1f1f1f;
-}
-QSlider::sub-page:horizontal {
-  background-color: #1f0115;
-}
-QSlider::sub-page:vertical {
-  background-color: #1f0115;
+QSlider#positionSlider::add-page:horizontal {
+  background: color(slider-pre);
 }
 
-QLabel {
-  color: #d3dae3;
+QSlider#positionSlider::sub-page:horizontal {
+  background-color: color(slider-post);
 }
 
-QProgressBar {
+QLabel#infoLabel {
+  font-size: 10px;
+  color: color(text-info);
+  padding-left: 10px;
+}
+
+QLabel#trackLabel {
+  font-size: 20px;
+  color: color(text);
   text-align: center;
-  color: #d3dae3;
-  border-radius: 10px;
-  border-color: transparent;
-  border-style: solid;
-  background-color: #1f0115;
+  background-color: color(background-player);
 }
 
-QProgressBar::chunk {
-  background-color: #1f0115;
-  border-radius: 10px;
+QLabel#windowLabel {
+  padding-left: 5px;
+  font-size: 20px;
+  color: color(text-info);
 }

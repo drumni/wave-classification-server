@@ -1,11 +1,18 @@
 from pandas import DataFrame
 from pandas import read_csv
 from tqdm.std import tqdm
-import os
+from os import (
+    makedirs
+)
+from os.path import (
+    join,
+    exists,
+    splitext
+)
 
 class Base:
-    SAVE_ENABLED = True
-    def __init__(self, segments = 10, tracks = 100, offset = 0, seconds = 3, rate = 22050, batch_size = 128):
+    SAVE_ENABLED = False
+    def __init__(self, data_dir,  segments = 10, tracks = 100, offset = 0, seconds = 3, rate = 22050, batch_size = 128):
         self.tracks = tracks
         self.segments = segments
         self.offset = offset
@@ -15,9 +22,11 @@ class Base:
         # [32, 64] - CPU
         # [128, 256] - GPU for more boost
         self.batch_size = batch_size
-        
-        self.data_dir = os.path.join('data',f's-{seconds}')
+
+        self.data_dir = join('data', data_dir)
         print(f'Data Directory: {self.data_dir}')
+        if not exists(self.data_dir):
+            makedirs(self.data_dir)
         
         self.df = DataFrame(columns=['filename'])
         self.library = {}
@@ -28,7 +37,11 @@ class Base:
         print("Dataset has",self.df.shape)
         print("Count of Positive and Negative samples")
         print("Columns with NA values are",list(self.df.columns[self.df.isnull().any()]))
+        print("Expected duration is", {self.df.length[0]})
+        print("Columns with DIFFRENT values are", list(self.df.length.loc[self.df.length != self.df.length[0]]))
         print(self.df.label.value_counts().reset_index())
+        print(self.df.head())
+        print(len(self.df.columns))
     
     def normalizeDataFrame(self):  # sourcery skip: avoid-builtin-shadow
         min = self.df.label.value_counts().min()
@@ -39,9 +52,9 @@ class Base:
         col = self.df.pop("filename")
         self.df.insert(0, col.name, col)
         if(self.SAVE_ENABLED == False):
-            self.df.to_csv(os.path.join(self.data_dir, 'db.min.csv'))
+            self.df.to_csv(join(self.data_dir, 'db.min.csv'), index=False)
         else:
-            self.df.to_csv(os.path.join(self.data_dir, 'db.csv'))
+            self.df.to_csv(join(self.data_dir, 'db.csv'), index=False)
     
     def loadDataFrame(self):
         expectedColumns = self.database[list(self.database.keys())[0]][0][0].keys()
@@ -51,9 +64,10 @@ class Base:
         self.saveDataFrame()
         
     def loadDataFrameFile(self):
-        if os.path.exists(os.path.join(self.data_dir, 'db.csv')):
-            self.df = read_csv(os.path.join(self.data_dir, 'db.csv'), index_col=[0])      
-    
+        if exists(join(self.data_dir, 'db.csv')):
+            self.df = read_csv(join(self.data_dir, 'db.csv'))
+            print(self.df.head())
+                
     def updateDataFrame(self):
         for label in list(self.database.keys()):
             for file in self.database[label]:
@@ -72,7 +86,7 @@ class Base:
     
     def validateFile(self, file_path, filename):
         acceppted_audio_formats = ['wav', 'mp3'] 
-        if (os.path.splitext(file_path)[-1] in acceppted_audio_formats):
+        if (splitext(file_path)[-1] in acceppted_audio_formats):
             return False
         
         if(self.getCountInsideDataFrame('filename', self.getFilename(filename, 0)) > 0):
@@ -103,5 +117,5 @@ class Base:
         return tqdm(total=max, desc=label, bar_format="{desc}\t{bar:20} {n_fmt}/{total_fmt} [{elapsed} -> {remaining}]", initial=init)
 
     def getFilename(self, filename, i = ''):
-        words = os.path.splitext(filename)
+        words = splitext(filename)
         return ''.join([words[0], str(i), words[-1]])  

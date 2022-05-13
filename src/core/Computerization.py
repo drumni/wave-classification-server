@@ -28,10 +28,13 @@ np.random.seed(seed)
 
 class Computerization(Base):
     def preperation(self):
-        self.df.drop(['length'], axis=1, inplace=True)
+        self.df.drop(['length', 'index'], axis=1, inplace=True)
+        
         self.encodeGenreLabel()
         self.df.label = [self.label_index[l] for l in self.df.label]
+        
         self.splitSets()
+        self.fitSets()
         self.models = []
         self.historys = []
         
@@ -40,20 +43,21 @@ class Computerization(Base):
     
         # remove irrelevant columns
         self.df.drop(['filename'], axis=1, inplace=True)
+        self.df = self.df.reindex(sorted(self.df.columns), axis=1)
+        
         df_y = self.df.pop('label')
         df_X = self.df
         
         # split into train dev and test
         self.X_train, self.X_dev, self.y_train, self.y_dev = skms.train_test_split(df_X, df_y, train_size=0.8, random_state=seed, stratify=df_y)
-
+    
+    def fitSets(self):
         self.scaler = skp.StandardScaler()
         self.X_train = pd.DataFrame(self.scaler.fit_transform(self.X_train), columns=self.X_train.columns)
-        self.X_dev = pd.DataFrame(self.scaler.transform(self.X_dev), columns=self.X_dev.columns)
-
-
+        self.X_dev = pd.DataFrame(self.scaler.transform(self.X_dev), columns=self.X_train.columns)
 
     class myCallback(k.callbacks.Callback):
-        ACCURACY_THRESHOLD = 0.94
+        ACCURACY_THRESHOLD = 0.98
         def on_epoch_end(self, epoch, logs={}):
             if(logs.get('val_accuracy') > self.ACCURACY_THRESHOLD):
                 print("\n\nStopping training as we have reached %2.2f%% accuracy!" %(self.ACCURACY_THRESHOLD*100))   
@@ -68,6 +72,7 @@ class Computerization(Base):
                     loss='sparse_categorical_crossentropy',
                     metrics='accuracy' )
         
+        print('STRUCT', self.X_train.columns, len(self.X_train.columns))
         return model.fit(self.X_train, self.y_train, validation_data=(self.X_dev, self.y_dev), epochs=epochs, 
                         batch_size=self.batch_size, callbacks=callbacks)
 
@@ -163,8 +168,8 @@ class Computerization(Base):
         self.historys = np.append(self.historys, history) 
 
     def generateHistory(self):
-        for history in self.historys:
-            print("Max. Validation Accuracy",max(history.history["val_accuracy"]))
+        for i, history in enumerate(self.historys):
+            print(f"Model {i}: Max. Validation Accuracy is {max(history.history['val_accuracy'])}%")
             pd.DataFrame(history.history).plot(figsize=(12,6))
             plt.show()
             # plt.draw()
@@ -177,22 +182,32 @@ class Computerization(Base):
             self.label_index[x] = i
             self.index_label[i] = x
         
-    def getBestModel(self):
+    def getBestModelIndex(self):
         best_model_index = 0
         best_acc = 0
         for i, history in enumerate(self.historys):
             acc = max(history.history["val_accuracy"])
-            if (acc < best_acc):
+            if (acc > best_acc):
                 best_acc = acc
                 best_model_index = i
         print(f"best model is {best_model_index}")
-        return self.models[best_model_index]
+        return best_model_index
         
     def save(self):
-        self.getBestModel().save( os.path.join(self.data_dir, "model.h5"))
+        
+        self.saveModels()
         
         joblib.dump(self.scaler , os.path.join(self.data_dir, "scaler.pkl"))     # save to disk
 
+        with open(os.path.join(self.data_dir, "columns.pkl"), "wb") as a_file:
+            pickle.dump(self.X_train.columns, a_file)
+
         with open(os.path.join(self.data_dir, "labels.pkl"), "wb") as a_file:
             pickle.dump(self.index_label, a_file)
-            
+        
+    def saveModels(self):
+        best_model_index = self.getBestModelIndex()
+
+        for i, history in enumerate(self.historys):
+            acc = max(history.history["val_accuracy"])
+            self.models[i].save(os.path.join(self.data_dir, f'model[{i}]_{round(acc*100)/100}'+ ('_best' if i == best_model_index else '') + '.h5'))
