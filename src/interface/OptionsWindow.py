@@ -1,20 +1,19 @@
 from os.path import join
 from os import listdir
 
-from PyQt5.QtGui import (
+from PySide2.QtGui import (
     QIcon,
 )
-from PyQt5.QtCore import (
+from PySide2.QtCore import (
     QPoint,
     Qt,
-    pyqtSignal,
+    Signal,
 )
 
-from PyQt5.QtWidgets import (
+from PySide2.QtWidgets import (
     QComboBox,
     QHBoxLayout,
     QLabel,
-    QMainWindow,
     QPushButton,
     QSizePolicy,
     QSlider, 
@@ -24,21 +23,24 @@ from PyQt5.QtWidgets import (
 )
 
 class OptionsWindow(QWidget):
-    saved = pyqtSignal(str, str, int)
+    saved = Signal(str, str, int, bool)
+    isOpen = False
     
-    def __init__(self, data_dir, model_dir, segments):
+    def __init__(self, data_dir, model_dir, segments, autoMove):
         super().__init__()
+        isOpen = True
         
         self.data_dir = data_dir
         self.model_dir = model_dir
         self.segments = segments
+        self.autoMove = autoMove
         
         self.WIDTH = 80*5
         self.HEIGHT = 20*5
         
         self.windowHeader = 'Options'
         self.setWindowTitle("Emotions are Real | Options")
-        QMainWindow.__init__(self, None, Qt.WindowStaysOnTopHint)
+        # QMainWindow.__init__(self, None, Qt.WindowStaysOnTopHint)
         self.setWindowFlag(Qt.FramelessWindowHint)
         self.setWindowIcon(QIcon('./img/icons/window-icon.png'))
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -46,7 +48,7 @@ class OptionsWindow(QWidget):
         self.resize(self.WIDTH, self.HEIGHT)
         self.setupUi()
     
-    def saveOptions(self, event):
+    def saveOptions(self):
         # print(f'Segments: {self.segments}')
         # print(f'Model: {self.model_dir}')
         # print(f'Data: {self.data_dir}')
@@ -96,6 +98,13 @@ class OptionsWindow(QWidget):
         self.segmentSliderLabel = QLabel(str(self.segments), objectName="trackLabel")
         self.segmentSlider.setValue(self.segments)
 
+        self.autoMoveButton = QPushButton(objectName="labelButtons", clicked=self.updateAutoMove)
+        self.autoMoveButton.setText('Move files automatic:' + ('On' if self.autoMove else 'Off'))
+
+    def updateAutoMove(self):
+        self.autoMove = not self.autoMove
+        self.autoMoveButton.setText('Move files automatic: ' + ('On' if self.autoMove else 'Off'))
+
     def setupDataComBox(self):
         trained = listdir('data')
         for i, train in enumerate(trained):
@@ -133,6 +142,7 @@ class OptionsWindow(QWidget):
         optionsLayout.addWidget(self.datasetSelectorComboBox)
         optionsLayout.addWidget(self.modelSelectorComboBox)
         optionsLayout.addLayout(sliderLayout)
+        optionsLayout.addWidget(self.autoMoveButton)
         optionsLayout.addItem(self.expandingVSpacer)
         
         toolbarContainer = QWidget(objectName = "toolbarContainer")
@@ -151,9 +161,10 @@ class OptionsWindow(QWidget):
         layoutLayout.addWidget(layoutContainer)
         self.setLayout(layoutLayout)
 
-    def quitUi(self, _):
+    def quitUi(self):
         self.close()
-        
+        isOpen = False
+                
     def mousePressEvent(self, event):
         self.oldPos = event.globalPos()
 

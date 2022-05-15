@@ -1,7 +1,7 @@
 
 from src.tools.Analysis import Analysis
 
-from PyQt5.QtCore import (QThread, pyqtSignal)
+from PySide2.QtCore import (QThread, Signal)
 from pandas import DataFrame
 from numpy import (
     float64,
@@ -12,8 +12,8 @@ from numpy import (
 )
 
 class Prediction(QThread):
-    change_value = pyqtSignal(int)
-    result_value = pyqtSignal(object)
+    change_value = Signal(int)
+    result_value = Signal(object)
     
     def __init__(self, file, options):
         super().__init__()
@@ -25,23 +25,26 @@ class Prediction(QThread):
         
     def run(self):
         try:
-            a = Analysis(audio_path=self.file, options=self, _ui_bar = self.change_value)
-            segments = a.loadFeatures()
-            
-            self.segments_df = DataFrame(segments, dtype=float64)
-            self.segments_df.drop(['length'], axis=1, inplace=True)
-            self.segments_df = self.segments_df.reindex(sorted(self.segments_df.columns), axis=1)
-            
-            self.segments_df = DataFrame(self.scaler.transform(self.segments_df), columns=self.segments_df.columns)
-            self.segments_df.reset_index(drop=True)
-            
-            q = self.model.predict(self.segments_df)
-            # print(X_train.columns)
-            self.result = self.loadBetterGuess(q.T)
-            self.result_value.emit(self.result)
+            self.predict()
         except Exception as e:
-            print(e)
+            print('Error loading prediction...')
             return []
+
+    def predict(self):
+        a = Analysis(audio_path=self.file, options=self, _ui_bar = self.change_value)
+        segments = a.loadFeatures()
+
+        self.segments_df = DataFrame(segments, dtype=float64)
+        self.segments_df.drop(['length'], axis=1, inplace=True)
+        self.segments_df = self.segments_df.reindex(sorted(self.segments_df.columns), axis=1)
+
+        self.segments_df = DataFrame(self.scaler.transform(self.segments_df), columns=self.segments_df.columns)
+        self.segments_df.reset_index(drop=True)
+
+        q = self.model.predict(self.segments_df)
+        # print(X_train.columns)
+        self.result = self.loadBetterGuess(q.T)
+        self.result_value.emit(self.result)
         
     def stop(self):
         self.terminate()

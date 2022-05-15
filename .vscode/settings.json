@@ -8,11 +8,12 @@
         "**/Thumbs.db": true
     },
     "explorerExclude.backup": null,
+    "python.defaultInterpreterPath": "D:/Devtools/miniconda/envs/prediction_env/python.exe",
     "python.languageServer": "Pylance",
     "python.autoComplete.extraPaths": [
-        "D:/Devtools/miniconda/python.exe"
-        ],
-        "python.analysis.extraPaths": [
-            "D:/Devtools/miniconda/python.exe"
-        ],
+        "D:/Devtools/miniconda/envs/prediction_env/python.exe"
+    ],
+    "python.analysis.extraPaths": [
+        "D:/Devtools/miniconda/envs/prediction_env/python.exe"
+    ],
 }

@@ -1,24 +1,4 @@
-from librosa import (
-    load
-)
-from librosa.feature import (
-    tonnetz, 
-    mfcc,
-    delta,
-    chroma_stft,
-    zero_crossing_rate,
-    spectral_contrast,
-    spectral_rolloff,
-    rms,
-    spectral_centroid,
-    spectral_bandwidth
-)
-from librosa.effects import (
-    hpss,
-    harmonic
-)
-from librosa.beat import tempo
-from librosa.core.spectrum import stft
+import librosa
 
 from numpy import (
     array,
@@ -36,7 +16,7 @@ class Segment:
 
     def loadAudio(self, path, offset, length, target_sr):
         # TODO add  random offset by seed
-        self.audio_data, self.rate = load(
+        self.audio_data, self.rate = librosa.load(
             path, offset=offset, duration=length, sr=target_sr)
         # self.audio_data, _ = librosa.effects.trim(self.audio_data) # TODO check effects!
 
@@ -85,105 +65,105 @@ class Segment:
     def tonnetz(self):
         if self.tonnetz_ is not None:
             return self.tonnetz_
-        self.tonnetz_ = tonnetz(y=self.harmonic())
+        self.tonnetz_ = librosa.feature.tonnetz(y=self.harmonic())
         return self.tonnetz_
 
     harmonic_ = None
     def harmonic(self):
         if self.harmonic_ is not None:
             return self.harmonic_
-        self.harmonic_ = harmonic(y=self.harmony())
+        self.harmonic_ = librosa.effects.harmonic(y=self.harmony())
         return self.harmonic_
 
     mfcc_ = None
     def mfcc(self):
         if self.mfcc_ is not None:
             return self.mfcc_
-        self.mfcc_ = mfcc(y=self.audio_data, sr=self.rate)
+        self.mfcc_ = librosa.feature.mfcc(y=self.audio_data, sr=self.rate)
         return self.mfcc_
 
     mfcc_delta_ = None
     def mfcc_delta(self):
         if self.mfcc_delta_ is not None:
             return self.mfcc_delta_
-        self.mfcc_delta_ = delta(self.mfcc(), order = 1)
+        self.mfcc_delta_ = librosa.feature.delta(self.mfcc(), order = 1)
         return self.mfcc_delta_
     
     mfcc_delta_delta_ = None
     def mfcc_delta_delta(self):
         if self.mfcc_delta_delta_ is not None:
             return self.mfcc_delta_delta_
-        self.mfcc_delta_delta_ = delta(self.mfcc(), order = 2)
+        self.mfcc_delta_delta_ = librosa.feature.delta(self.mfcc(), order = 2)
         return self.mfcc_delta_delta_
 
     mfcc_harmony_ = None
     def mfcc_harmony(self):
         if self.mfcc_harmony_ is not None:
             return self.mfcc_harmony_
-        self.mfcc_harmony_ = mfcc(y=self.harmony(), sr=self.rate, n_mfcc=40)[-20:][::3]
+        self.mfcc_harmony_ = librosa.feature.mfcc(y=self.harmony(), sr=self.rate, n_mfcc=40)[-20:][::3]
         return self.mfcc_harmony_
     
     mfcc_perc_ = None
     def mfcc_perc(self):
         if self.mfcc_perc_ is not None:
             return self.mfcc_perc_
-        self.mfcc_perc_ = mfcc(y=self.perc(), sr=self.rate, n_mfcc=40, lifter=2 * 40)[::3]
+        self.mfcc_perc_ = librosa.feature.mfcc(y=self.perc(), sr=self.rate, n_mfcc=40, lifter=2 * 40)[::3]
         return self.mfcc_perc_
 
     stft_ = None
     def stft(self):
         if self.stft_ is not None:
             return self.stft_
-        self.stft_ = stft(self.audio_data)
+        self.stft_ = librosa.core.stft(self.audio_data)
         return self.stft_
 
     chroma_stft_ = None
     def chroma_stft(self):
         if self.chroma_stft_ is not None:
             return self.chroma_stft_
-        self.chroma_stft_ = chroma_stft(S=self.stft(), sr=self.rate)
+        self.chroma_stft_ = librosa.feature.chroma_stft(S=self.stft(), sr=self.rate)
         return self.chroma_stft_
 
     spectral_centroid_ = None
     def spectral_centroid(self):
         if self.spectral_centroid_ is not None:
             return self.spectral_centroid_
-        self.spectral_centroid_ = spectral_centroid(self.audio_data)
+        self.spectral_centroid_ = librosa.feature.spectral_centroid(self.audio_data)
         return self.spectral_centroid_
 
     spectral_bandwidth_ = None
     def spectral_bandwidth(self):
         if self.spectral_bandwidth_ is not None:
             return self.spectral_bandwidth_
-        self.spectral_bandwidth_ = spectral_bandwidth(self.audio_data)
+        self.spectral_bandwidth_ = librosa.feature.spectral_bandwidth(self.audio_data)
         return self.spectral_bandwidth_
 
     spectral_rolloff_ = None
     def spectral_rolloff(self):
         if self.spectral_rolloff_ is not None:
             return self.spectral_rolloff_
-        self.spectral_rolloff_ = spectral_rolloff(self.audio_data)
+        self.spectral_rolloff_ = librosa.feature.spectral_rolloff(self.audio_data)
         return self.spectral_rolloff_
 
     spectral_contrast_ = None
     def spectral_contrast(self):
         if self.spectral_contrast_ is not None:
             return self.spectral_contrast_
-        self.spectral_contrast_ = spectral_contrast(y = self.audio_data)
+        self.spectral_contrast_ = librosa.feature.spectral_contrast(y = self.audio_data)
         return self.spectral_contrast_
 
     zero_crossing_rate_ = None
     def zero_crossing_rate(self):
         if self.zero_crossing_rate_ is not None:
             return self.zero_crossing_rate_
-        self.zero_crossing_rate_ = zero_crossing_rate(self.audio_data)
+        self.zero_crossing_rate_ = librosa.feature.zero_crossing_rate(self.audio_data)
         return self.zero_crossing_rate_
 
     rms_ = None
     def rms(self):
         if self.rms_ is not None:
             return self.rms_
-        self.rms_ = rms(self.audio_data)
+        self.rms_ = librosa.feature.rms(self.audio_data)
         return self.rms_
 
     harmony_ = None
@@ -201,13 +181,13 @@ class Segment:
         return self.perc_
 
     def hpss(self):
-        self.harmony_, self.perc_ = hpss(y = self.audio_data)
+        self.harmony_, self.perc_ = librosa.effects.hpss(y = self.audio_data)
 
     tempo_ = None
     def tempo(self):
         if self.tempo_ is not None:
             return self.tempo_
-        _tempo = tempo(self.audio_data)[0]
+        _tempo = librosa.beat.tempo(self.audio_data)[0]
         _tempo = round(_tempo % 180)
         self.tempo_ = _tempo
         return self.tempo_
