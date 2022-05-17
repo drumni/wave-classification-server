@@ -23,17 +23,20 @@ from PySide2.QtWidgets import (
 )
 
 class OptionsWindow(QWidget):
-    saved = Signal(str, str, int, bool)
+    saved = Signal(str, str, int, int, bool, bool)
     isOpen = False
     
-    def __init__(self, data_dir, model_dir, segments, autoMove):
+    def __init__(self, storage_location, data_dir, model_dir, segments, autoTolarance, autoMove, autoNext):
         super().__init__()
         isOpen = True
         
+        self.storage_location = storage_location
         self.data_dir = data_dir
         self.model_dir = model_dir
         self.segments = segments
+        self.autoTolarance = autoTolarance
         self.autoMove = autoMove
+        self.autoNext = autoNext
         
         self.WIDTH = 80*5
         self.HEIGHT = 20*5
@@ -42,18 +45,14 @@ class OptionsWindow(QWidget):
         self.setWindowTitle("Emotions are Real | Options")
         # QMainWindow.__init__(self, None, Qt.WindowStaysOnTopHint)
         self.setWindowFlag(Qt.FramelessWindowHint)
-        self.setWindowIcon(QIcon('./img/icons/window-icon.png'))
+        self.setWindowIcon(QIcon('./imgwindow-icon.png'))
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowOpacity(1)
         self.resize(self.WIDTH, self.HEIGHT)
         self.setupUi()
     
     def saveOptions(self):
-        # print(f'Segments: {self.segments}')
-        # print(f'Model: {self.model_dir}')
-        # print(f'Data: {self.data_dir}')
-        self.saved.emit(self.data_dir, self.model_dir, self.segments)
-        # print("Save options")
+        self.saved.emit(self.data_dir, self.model_dir, self.segments, self.autoTolarance, self.autoMove, self.autoNext)
     
     def updateModelDir(self, dir):
         self.model_dir = dir
@@ -64,9 +63,12 @@ class OptionsWindow(QWidget):
         self.setupModelComBox()
                 
     def updateSegments(self, segments):
-        # print(segments)
         self.segments = segments
-        self.segmentSliderLabel.setText(str(self.segments))
+        self.segmentSliderLabel.setText(f'{str(self.segments)} Segments')
+            
+    def updateTolorance(self, autoTolarance):
+        self.autoTolarance = autoTolarance
+        self.toloranceSliderLabel.setText(f'{str(self.autoTolarance)}%')
             
     def setupUi(self):
         self.setupUiElements()
@@ -81,10 +83,10 @@ class OptionsWindow(QWidget):
         self.vSpacer = QSpacerItem(10, 20, QSizePolicy.Maximum, QSizePolicy.Minimum)
         
         self.exitButton = QPushButton(objectName="toolbarButton", clicked =self.quitUi)
-        self.exitButton.setIcon(QIcon('./img/icons/close.png'))
+        self.exitButton.setIcon(QIcon('./img/close.png'))
         
         self.saveButton = QPushButton(objectName="toolbarButton", clicked =self.saveOptions)
-        self.saveButton.setIcon(QIcon('./img/icons/save.png'))
+        self.saveButton.setIcon(QIcon('./img/save.png'))
         
         self.datasetSelectorComboBox = QComboBox(objectName="selector")
         self.setupDataComBox()
@@ -95,18 +97,30 @@ class OptionsWindow(QWidget):
         self.windowLabel = QLabel(self.windowHeader, objectName="windowLabel")
         
         self.segmentSlider = QSlider(Qt.Horizontal, minimum=1, maximum=50, objectName="positionSlider")
-        self.segmentSliderLabel = QLabel(str(self.segments), objectName="trackLabel")
+        self.segmentSliderLabel = QLabel(f'{str(self.segments)} Segments', objectName="optionValueLabel")
         self.segmentSlider.setValue(self.segments)
-
+        
+        self.toloranceSlider = QSlider(Qt.Horizontal, minimum=0, maximum=100, objectName="positionSlider")
+        self.toloranceSliderLabel = QLabel(f'{str(self.autoTolarance)}%', objectName="optionValueLabel")
+        self.toloranceSlider.setValue(self.autoTolarance)
+        
         self.autoMoveButton = QPushButton(objectName="labelButtons", clicked=self.updateAutoMove)
-        self.autoMoveButton.setText('Move files automatic:' + ('On' if self.autoMove else 'Off'))
+        self.autoMoveButton.setText('Move files automatic: ' + ('On' if self.autoMove else 'Off'))
+        
+        self.autoNextButton = QPushButton(objectName="labelButtons", clicked=self.updateAutoNext)
+        self.autoNextButton.setText('Next files automatic: ' + ('On' if self.autoNext else 'Off'))
+
+
+    def updateAutoNext(self):
+        self.autoNext = not self.autoNext
+        self.autoNextButton.setText('Next files automatic: ' + ('On' if self.autoNext else 'Off'))
 
     def updateAutoMove(self):
         self.autoMove = not self.autoMove
         self.autoMoveButton.setText('Move files automatic: ' + ('On' if self.autoMove else 'Off'))
 
     def setupDataComBox(self):
-        trained = listdir('data')
+        trained = listdir(self.storage_location)
         for i, train in enumerate(trained):
             if(i == 0):
                 self.data_dir = train
@@ -117,7 +131,7 @@ class OptionsWindow(QWidget):
             self.datasetSelectorComboBox.setCurrentIndex(index)
 
     def setupModelComBox(self):
-        models = listdir(join('data', self.data_dir))
+        models = listdir(join(self.storage_location, self.data_dir))
         for model in models:
             if '.h5' in model:
                 self.modelSelectorComboBox.addItem(model)
@@ -131,18 +145,27 @@ class OptionsWindow(QWidget):
         self.datasetSelectorComboBox.currentTextChanged.connect(self.updateDataDir)
         self.modelSelectorComboBox.currentTextChanged.connect(self.updateModelDir)
         self.segmentSlider.valueChanged.connect(self.updateSegments)
+        self.toloranceSlider.valueChanged.connect(self.updateTolorance)
 
     def setupUiStructure(self):
-        sliderLayout = QHBoxLayout()
-        sliderLayout.addWidget(self.segmentSliderLabel)
-        sliderLayout.addWidget(self.segmentSlider)
+        segmentsliderLayout = QHBoxLayout()
+        segmentsliderLayout.addWidget(self.segmentSliderLabel)
+        segmentsliderLayout.addWidget(self.segmentSlider)
+        
+        
+        tolorancesliderLayout = QHBoxLayout()
+        tolorancesliderLayout.addWidget(self.toloranceSliderLabel)
+        tolorancesliderLayout.addWidget(self.toloranceSlider)
+        
         
         optionsContainer = QWidget(objectName = "playerContainer")
         optionsLayout = QVBoxLayout(optionsContainer)
         optionsLayout.addWidget(self.datasetSelectorComboBox)
         optionsLayout.addWidget(self.modelSelectorComboBox)
-        optionsLayout.addLayout(sliderLayout)
+        optionsLayout.addLayout(segmentsliderLayout)
+        optionsLayout.addLayout(tolorancesliderLayout)
         optionsLayout.addWidget(self.autoMoveButton)
+        optionsLayout.addWidget(self.autoNextButton)
         optionsLayout.addItem(self.expandingVSpacer)
         
         toolbarContainer = QWidget(objectName = "toolbarContainer")
@@ -166,9 +189,13 @@ class OptionsWindow(QWidget):
         isOpen = False
                 
     def mousePressEvent(self, event):
-        self.oldPos = event.globalPos()
+        self.moveWindow = event.pos().y() < 69
+        if (event.button() == Qt.LeftButton):
+            self.oldPos = event.globalPos()
 
     def mouseMoveEvent(self, event):
+        if not self.moveWindow:
+            return
         if hasattr(self, 'oldPos'):
             delta = QPoint(event.globalPos() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())

@@ -35,6 +35,7 @@ if __name__ == "__main__":
     window.show()
     opacity(window, 0, 1, 0.001)
     
-    window.loadLibaryFolder('D:\\Musik\\Genres\\Electronic\\DnB\\liquid')
     splash.finish(window)
     exit(app.exec_())
+    
+    
