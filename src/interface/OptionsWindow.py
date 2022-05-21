@@ -134,10 +134,11 @@ class OptionsWindow(QWidget):
         models = listdir(join(self.storage_location, self.data_dir))
         for model in models:
             if '.h5' in model:
+                if 'best' in model:
+                    self.model_dir = model
                 self.modelSelectorComboBox.addItem(model)
 
-        # print(self.model_dir)
-        index = self.modelSelectorComboBox.findText(self.model_dir, Qt.MatchFixedString)
+        index = self.modelSelectorComboBox.findText(self.model_dir)
         if index >= 0:
             self.modelSelectorComboBox.setCurrentIndex(index)
     
