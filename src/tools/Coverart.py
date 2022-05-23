@@ -20,5 +20,4 @@ def loadAudioName(filename):
 
 def loadCoverart(filename):
     filename = loadAudioName(filename)
-    # print (f"Loading coverart {filename}")
     download(filename, limit=1,  output_dir='img', adult_filter_off=True, force_replace=False, timeout=60, verbose=False)

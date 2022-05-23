@@ -1,12 +1,12 @@
-import os, sys
+import os
 import shutil
 from pathlib import Path
 import urllib.request
 import urllib
 import imghdr
 import posixpath
-import re
 
+import re
 def download(query, limit=100, output_dir='dataset', adult_filter_off=True, 
 force_replace=False, timeout=60, filter="", verbose=True):
 
@@ -21,12 +21,9 @@ force_replace=False, timeout=60, filter="", verbose=True):
     try:
         if not Path.is_dir(image_dir):
             Path.mkdir(image_dir, parents=True)
-
     except Exception as e:
-        print('[Error]Failed to create directory.', e)
-        sys.exit(1)
+        pass
 
-    # print("[%] Downloading Images to {}".format(str(image_dir.absolute())))
     bing = Bing(query, limit, image_dir, adult, timeout, '', False)
     bing.run()
 
@@ -76,7 +73,6 @@ class Bing:
         request = urllib.request.Request(link, None, self.headers)
         image = urllib.request.urlopen(request, timeout=self.timeout).read()
         if not imghdr.what(None, image):
-            print('[Error]Invalid image, not saving {}\n'.format(link))
             raise ValueError('Invalid image, not saving {}\n'.format(link))
         with open(str(file_path), 'wb') as f:
             f.write(image)
@@ -95,7 +91,6 @@ class Bing:
                         
         except Exception as e:
             self.download_count -= 1
-            print("[!] Issue getting: {}\n[!] Error:: {}".format(link, e))
 
     def run(self):
         total_iter = 0

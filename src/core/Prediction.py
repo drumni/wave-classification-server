@@ -1,5 +1,4 @@
-
-from src.tools.Analysis import Analysis
+from src.core.Analysis import Analysis
 
 from PySide2.QtCore import (QThread, Signal)
 from pandas import DataFrame
@@ -24,14 +23,11 @@ class Prediction(QThread):
         self.seconds = options.seconds
         
     def run(self):
-        try:
-            self.predict()
-        except Exception as e:
-            print('Error loading prediction...')
-            return []
-
+        self.predict()
+            
     def predict(self):
         a = Analysis(audio_path=self.file, options=self, _ui_bar = self.change_value)
+        
         segments = a.loadFeatures()
 
         self.segments_df = DataFrame(segments, dtype=float64)
@@ -40,6 +36,7 @@ class Prediction(QThread):
 
         self.segments_df = DataFrame(self.scaler.transform(self.segments_df), columns=self.segments_df.columns)
         self.segments_df.reset_index(drop=True)
+        
 
         q = self.model.predict(self.segments_df)
         # print(X_train.columns)
