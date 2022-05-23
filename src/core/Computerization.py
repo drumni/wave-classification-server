@@ -28,7 +28,7 @@ np.random.seed(seed)
 
 class Computerization(Base):
     def preperation(self):
-        self.df.drop(['length', 'index'], axis=1, inplace=True)
+        self.df.drop(['length'], axis=1, inplace=True)
         
         self.encodeGenreLabel()
         self.df.label = [self.label_index[l] for l in self.df.label]

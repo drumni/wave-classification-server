@@ -43,6 +43,9 @@ class Base:
         print(self.df.head())
         print(len(self.df.columns))
     
+    def dropMissingLabel(self, label):
+        self.df = self.df.loc[self.df['label'] != label]
+    
     def normalizeDataFrame(self):  # sourcery skip: avoid-builtin-shadow
         min = self.df.label.value_counts().min()
         self.df = self.df.groupby('label').head(min).reset_index()
@@ -66,7 +69,7 @@ class Base:
     def loadDataFrameFile(self):
         if exists(join(self.data_dir, 'db.csv')):
             self.df = read_csv(join(self.data_dir, 'db.csv'))
-            print(self.df.head())
+            # print(self.df.head())
                 
     def updateDataFrame(self):
         for label in list(self.database.keys()):

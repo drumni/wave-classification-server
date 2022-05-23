@@ -2,7 +2,7 @@ from src.core.Base import Base
 
 import os
 import random
-from src.tools.Analysis import Analysis
+from src.core.Analysis import Analysis
 
 random.seed(42)
 
