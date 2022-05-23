@@ -1,9 +1,5 @@
-from librosa import (
-    get_samplerate,
-    get_duration
-)
+import librosa
 from src.tools.Segment import Segment
-from src.core.Base import Base
 
 from warnings import filterwarnings
 filterwarnings('ignore')
@@ -11,7 +7,7 @@ filterwarnings('ignore')
 class Analysis:
     def __init__(self,
                  audio_path,
-                 options: Base,
+                 options,
                  _bar = None,
                  _ui_bar = None):
         
@@ -27,8 +23,7 @@ class Analysis:
         self.rate = 22050
 
     def loadFeatures(self):
-        sr = get_samplerate(path=self.audio_path)
-        self.length = get_duration(filename=self.audio_path, sr=sr) / 60 # self.duration = len(self.audio_data) / SAMPLE_RATE / 60
+        self.length = librosa.get_duration(filename=self.audio_path, sr=self.rate) / 60 # self.duration = len(self.audio_data) / SAMPLE_RATE / 60
         self.offset_per_segment = self.segment_duration / self.segment_count # self.frames = SAMPLE_RATE * self.duration # self.samples_per_second = self.frames / segment_count
 
         if(self.length * 60 < self.segment_duration * self.segment_count):

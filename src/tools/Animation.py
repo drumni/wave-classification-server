@@ -1,5 +1,5 @@
-import time
-from PyQt5.QtWidgets import QWidget
+from time import sleep
+from PySide2.QtWidgets import QWidget
 
 def opacity(widget: QWidget, from_val=0, to_val=1, step = 0.001):
     # Run the normal application
@@ -8,5 +8,5 @@ def opacity(widget: QWidget, from_val=0, to_val=1, step = 0.001):
     while opaqueness < to_val:
         widget
         widget.setWindowOpacity(opaqueness)
-        time.sleep(step)
+        sleep(step)
         opaqueness+=step

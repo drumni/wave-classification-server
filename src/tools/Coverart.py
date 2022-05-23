@@ -5,7 +5,7 @@ from os.path import (
     splitext
 )
 
-from bing_image_downloader import downloader
+from src.tools.BingDownloader import download
 
 def loadAudioName(filename):
     filename = basename(filename).lower()
@@ -21,4 +21,4 @@ def loadAudioName(filename):
 def loadCoverart(filename):
     filename = loadAudioName(filename)
     # print (f"Loading coverart {filename}")
-    downloader.download(filename, limit=1,  output_dir='img', adult_filter_off=True, force_replace=False, timeout=60, verbose=False)
+    download(filename, limit=1,  output_dir='img', adult_filter_off=True, force_replace=False, timeout=60, verbose=False)
