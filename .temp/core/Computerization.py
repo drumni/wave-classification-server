@@ -65,7 +65,7 @@ class Computerization(Base):
                 
     def trainModel(self, model, epochs, optimizer):
         # Stop training when a monitored metric has stopped improving.
-        callbacks = [   tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3),
+        callbacks = [   tf.keras.callbacks.EarlyStopping(monitor='loss', patience=13),
                         self.myCallback() ]
         
         model.compile(optimizer=optimizer,
@@ -153,13 +153,39 @@ class Computerization(Base):
 
             k.layers.Dense(128, activation='relu'),
             k.layers.Dropout(0.2),
-
             k.layers.Dense(64, activation='relu'),
             k.layers.Dropout(0.2),
 
             k.layers.Dense(len(self.label_index.keys()), activation='softmax'),
         ])
         self.build(model, 100, 'adam') 
+
+    def buildModelF(self):
+        model =  k.models.Sequential([
+            k.layers.Dense(1024, activation='relu', input_shape=(self.X_train.shape[1],)),
+            k.layers.BatchNormalization(),
+            k.layers.Dropout(0.3),
+            
+            k.layers.Dense(512, activation='relu'),
+            k.layers.BatchNormalization(),
+            k.layers.Dropout(0.3),
+
+            k.layers.Dense(256, activation='relu'),
+            k.layers.BatchNormalization(),
+            k.layers.Dropout(0.3),
+
+            k.layers.Dense(128, activation='relu'),
+            k.layers.BatchNormalization(),
+            k.layers.Dropout(0.3),
+
+            k.layers.Dense(64, activation='relu'),
+            k.layers.BatchNormalization(),
+            k.layers.Dropout(0.3),
+            
+            k.layers.Dense(len(self.label_index.keys()), activation='softmax'),
+        ])
+        
+        self.build(model, 500, 'adam')
 
     def build(self, model, epochs, optimizer):
         print(model.summary())

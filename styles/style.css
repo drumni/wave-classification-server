@@ -41,21 +41,29 @@ QComboBox::down-arrow:on {
   padding: 3px;
 }
 
-QWidget#window {
+QWidget#windowContainer {
   background-color: color(background);
   border-top-left-radius: 20px;
+  border-bottom-right-radius: 20px;
   border-top-right-radius: 20px;
   border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
 }
 
-QWidget#playerContainer {
+QWidget#primaryContainer {
   background-color: color(background-player);
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
 }
+
+QWidget#secondaryContainer {
+    background-color: color(background-player);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
 
 QWidget#toolbarContainer {
   background-color: color(background-toolbar);

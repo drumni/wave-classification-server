@@ -16,7 +16,6 @@ class SplashScreen(QSplashScreen):
         self.movie.frameChanged.connect(self.onNextFrame)
         self.movie.start()
 
-
     def onNextFrame(self):
         pixmap = self.movie.currentPixmap()
         self.setPixmap(pixmap)

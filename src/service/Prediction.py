@@ -14,21 +14,15 @@ class Prediction(QThread):
     change_value = Signal(int)
     result_value = Signal(object)
     
-    def __init__(self, file, options):
+    def __init__(self):
         super().__init__()
-        self.model = options.model
-        self.scaler = options.scaler
-        self.file = file
-        self.segments = options.segments
-        self.seconds = options.seconds
         
     def run(self):
         self.predict()
             
     def predict(self):
-        a = Analysis(audio_path=self.file, options=self, _ui_bar = self.change_value)
-        
-        segments = a.loadFeatures()
+        analysis = Analysis(audio_path=self.file, options=self, _ui_bar = self.change_value)
+        segments = analysis.loadFeatures()
 
         self.segments_df = DataFrame(segments, dtype=float64)
         self.segments_df.drop(['length'], axis=1, inplace=True)
@@ -36,7 +30,6 @@ class Prediction(QThread):
 
         self.segments_df = DataFrame(self.scaler.transform(self.segments_df), columns=self.segments_df.columns)
         self.segments_df.reset_index(drop=True)
-        
 
         q = self.model.predict(self.segments_df)
         # print(X_train.columns)

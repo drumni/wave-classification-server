@@ -1,4 +1,3 @@
-   
 from re import findall
 from os.path import (
     basename,

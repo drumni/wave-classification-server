@@ -1,5 +1,5 @@
 from src.tools.Console import Console
-console = Console()
+console = Console(__file__)
 console.debug("Loaded Console!")
 
 from os.path import join as path_join, basename, join, exists, dirname, expanduser
@@ -59,8 +59,7 @@ from PySide2.QtWidgets import (
 )
 console.debug("Loaded PySide2.QtWidgets")
 
-
-from src.core.Prediction import Prediction
+from src.service.Prediction import Prediction
 console.debug("Loaded Prediction")
 
 from src.interface.OptionsWindow import OptionsWindow
@@ -322,11 +321,11 @@ class PredictionWindow(QMainWindow):
             makedirs(label_dir)
             console.info(f'Created folder {label_dir}') 
 
-        file_path = join(label_dir, basename(path))
+        path = join(label_dir, basename(path))
         try:
-            move(path, file_path)
+            move(path, path)
             split = '\\'
-            console.info(f'{basename(file_path)} moved to {label_dir.split(split)[-1]}') 
+            console.info(f'{basename(path)} moved to {label_dir.split(split)[-1]}') 
         except FileNotFoundError:
             console.error(f'could not save {basename(path)}')
         
@@ -479,7 +478,7 @@ class PredictionWindow(QMainWindow):
         trackLayout.addWidget(self.trackLabel, alignment=Qt.AlignLeft)
         trackLayout.addWidget(self.volumeSlider)
 
-        playerContainer = QWidget(objectName = "playerContainer")
+        playerContainer = QWidget(objectName = "primaryContainer")
         playerLayout = QVBoxLayout(playerContainer)
         playerLayout.addLayout(trackLayout)
         playerLayout.addLayout(controlLayout)
