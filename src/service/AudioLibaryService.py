@@ -1,3 +1,7 @@
+from src.tools.Console import Console
+console = Console()
+console.setOwner(__file__)
+
 from PySide2.QtCore import QThread
 from src.core.Options import Options
 
@@ -17,7 +21,7 @@ class AudioLibaryService(QThread):
         self.library.addFolder('C:\\Users\\robin\\Music\\PioneerDJ\\Demo Tracks', 'Demo')
         
     def run(self):
-        print('run')
+        console.debug('run')
         
     def onSegmentAnalysed(self, path, label, index):
-        print(f'{path} {label} {index}')
+        console.debug(f'{path} {label} {index}')

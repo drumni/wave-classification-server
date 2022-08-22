@@ -1,3 +1,4 @@
+from ctypes import ArgumentError
 from os.path import join
 from os import listdir
 
@@ -29,25 +30,25 @@ class Library:
       self.dataframe = None
       
     def addFile(self, file: File):
-        if file.label not in self.labels:
-            self.labels.append(file.label)
+        self.addLabel(file.label)
         if file is not None:
             self.files.append(file)
         
     def addLabel(self, label):
-        if label not in self.labels:
-          self.labels.append(label)
+        if {'label': label} not in self.labels:
+          self.labels.append({'label': label})
         
     def addFolder(self, path, label):
-        self.folders.append({'path': path, 'label': label})
-        
-        # add labels to the list of labels
-        self.addLabel(label)
-        
-        # read all files in folder and add them to the list of files
-        for file in listdir(path):
-          file = File(join(path, file), label, self.options)
-          self.addFile(file)
+        if {'label': label} not in self.labels:
+            self.folders.append({'path': path, 'label': label})
+            
+            # add labels to the list of labels
+            self.addLabel(label)
+            
+            # read all files in folder and add them to the list of files
+            for file in listdir(path):
+                file = File(join(path, file), label, self.options)
+                self.addFile(file)
           
     def addLibrary(self, library):
         for folder in library['folders']:
@@ -80,23 +81,24 @@ class Library:
         # save the library file
         self.dataframe.to_csv(self.path, index=False)
         
-    def getSegments(self):
-        segments = []
-        for file in self.files:
-            segments.extend(segment.getFeatures() for segment in file.segments)
-        return segments
-        
-    def getFile(self, path):
-        return next((file for file in self.files if file.path == path), None)
-      
-    def getFileByLabel(self, label):
-        return next((file for file in self.files if file.label == label), None)
-      
-    def getFolder(self, path):
-        return next((folder for folder in self.folders if folder['path'] == path), None)
-      
-    def getFolderByLabel(self, label):
-        return next((folder for folder in self.folders if folder['label'] == label), None)
-      
-    def getLabel(self, label):
-        return next((label for label in self.labels if label == label), None)
+    def getData(self, selection):
+        data = []
+
+        if selection == 'Files':
+            data.extend(iter(self.files))
+        elif selection == 'Folders':
+            data.extend(iter(self.folders))
+        elif selection == 'Labels':
+            data.extend(iter(self.labels))
+        elif selection == 'Segments':
+            for file in self.files:
+                data.extend(iter(file.segments))
+        else:
+            data = None
+            raise ArgumentError(f'selection {selection} not found')
+
+        for i in range(len(data)):
+            if isinstance(data[i], object) and type(data[i]) is not dict:
+                data[i] = data[i].__dict__
+                
+        return data

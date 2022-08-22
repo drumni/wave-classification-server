@@ -1,8 +1,12 @@
+from src.tools.Console import Console
+console = Console()
+console.setOwner(__file__)
+
+
 from src.interface.ModelEditorWindow import ModelEditorWindow
 from src.interface.ModelPredictWindow import ModelPredictWindow
 from src.interface.components import ModelInfoWidget, ModelListWidget
 from src.interface.TemplateWindow import TemplateWindow
-from src.tools.Console import Console
 from PySide2.QtWidgets import QHBoxLayout,  QLabel, QListWidget,  QMainWindow,  QPushButton,  QSizePolicy, QSpacerItem, QVBoxLayout,QWidget
 
 class ModelListWindow(TemplateWindow):
@@ -25,6 +29,7 @@ class ModelListWindow(TemplateWindow):
         modelListContainer = QWidget()
         modelList = QVBoxLayout(modelListContainer)
         modelList.addWidget(newModelWidget)
+        
         for model in self.models:
             modelList.addWidget(ModelListWidget(model=model, onClick=modelInfoWidget.update))
         
@@ -41,7 +46,7 @@ class ModelListWindow(TemplateWindow):
             return None
     
     def openModelCreationDialog(self):
-        print("Creating new model")
+        console.debug("Creating new model")
         self.creator = ModelEditorWindow()
         self.creator.show()
     

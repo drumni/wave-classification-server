@@ -8,7 +8,6 @@ class Segment:
         self.path = path
         self.options = options
         self.label = label
-        
         self.freatures = Features(self.options, basename(self.path), self.label)
         
     def load(self, index: int):

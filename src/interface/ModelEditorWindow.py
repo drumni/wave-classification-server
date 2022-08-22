@@ -6,7 +6,6 @@ from PySide2.QtWidgets import QLabel, QPushButton, QLineEdit, QVBoxLayout, QWidg
 # pyside2 -
 class ModelEditorWindow(TemplateWindow):
     def __init__(self):
-        self.selection = 'Files'
         self.service = AudioLibaryService()
         
         super().__init__(title="Model Editor", localLayout=self.setupLocalLayout, WindowHeight=100, WindowWidth=500)

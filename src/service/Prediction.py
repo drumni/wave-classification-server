@@ -1,4 +1,8 @@
-from src.core.Analysis import Analysis
+from src.tools.Console import Console
+console = Console()
+console.setOwner(__file__)
+
+from src.core.audio.Segment import Segment
 
 from PySide2.QtCore import (QThread, Signal)
 from pandas import DataFrame
@@ -20,21 +24,21 @@ class Prediction(QThread):
     def run(self):
         self.predict()
             
-    def predict(self):
-        analysis = Analysis(audio_path=self.file, options=self, _ui_bar = self.change_value)
-        segments = analysis.loadFeatures()
+    # def predict(self):
+    #     analysis = Analysis(audio_path=self.file, options=self, _ui_bar = self.change_value)
+    #     segments = analysis.loadFeatures()
 
-        self.segments_df = DataFrame(segments, dtype=float64)
-        self.segments_df.drop(['length'], axis=1, inplace=True)
-        self.segments_df = self.segments_df.reindex(sorted(self.segments_df.columns), axis=1)
+    #     self.segments_df = DataFrame(segments, dtype=float64)
+    #     self.segments_df.drop(['length'], axis=1, inplace=True)
+    #     self.segments_df = self.segments_df.reindex(sorted(self.segments_df.columns), axis=1)
 
-        self.segments_df = DataFrame(self.scaler.transform(self.segments_df), columns=self.segments_df.columns)
-        self.segments_df.reset_index(drop=True)
+    #     self.segments_df = DataFrame(self.scaler.transform(self.segments_df), columns=self.segments_df.columns)
+    #     self.segments_df.reset_index(drop=True)
 
-        q = self.model.predict(self.segments_df)
-        # print(X_train.columns)
-        self.result = self.loadBetterGuess(q.T)
-        self.result_value.emit(self.result)
+    #     q = self.model.predict(self.segments_df)
+    #     # print(X_train.columns)
+    #     self.result = self.loadBetterGuess(q.T)
+    #     self.result_value.emit(self.result)
         
     def stop(self):
         self.terminate()

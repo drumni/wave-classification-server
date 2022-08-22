@@ -1,3 +1,7 @@
+from src.tools.Console import Console
+console = Console()
+console.setOwner(__file__)
+
 from PySide2.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 class LibraryTableItemWidget(QWidget): # LibraryTableItemWidget
@@ -5,36 +9,36 @@ class LibraryTableItemWidget(QWidget): # LibraryTableItemWidget
     super().__init__()
     self.selection = selection
     
-    self.__item = item
     self.headers = []
-    self.values = []
+    self.values = {}
+    self.labels = []
     
-    if self.selection == 'Labels':
-        self.label = self.__item
-        self.headers = ['label']
-    else:
-      if self.selection == 'Files':
-        self.__item = self.__item.__dict__
-
-      # get all keys in item
-      for key in self.__item.keys():
-        self.headers.append(key)
-        self.values.append(self.__item[key])
-        self.__item[key] = QLabel(str(self.__item[key]))
+    for key in item.keys():
+      self.headers.append(key)
+      self.values[key] = self.convToString(item[key])
       
     self.updateLayout()
-    print(self.headers)
     
   def updateLayout(self):
+    self.labels = []
+    
     layout = QHBoxLayout(self)
-    for i, value in enumerate(self.values):
-      print(value)
-      layout.addWidget(QLabel(self.values[i]))
+    for key in self.values.keys():
+      item =  QLabel(self.values[key])
+      self.labels.append(item)
+      console.debug(f'{key}: {self.values[key]}')
+      layout.addWidget(QWidget(item))
     return layout
   
   def getHeaderWidget(self):
     headerWidget = QWidget()
     layout = QHBoxLayout(headerWidget)
     for header in self.headers:
-      layout.addWidget(QLabel(header))
+      item = QLabel(header)
+      self.labels.append(item)
+      layout.addWidget(QWidget(item))
     return headerWidget
+  
+  def convToString(self, item):
+    return str(item)
+    

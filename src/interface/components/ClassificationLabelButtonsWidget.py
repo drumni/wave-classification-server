@@ -1,3 +1,8 @@
+from src.tools.Console import Console
+console = Console()
+console.setOwner(__file__)
+
+
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QPushButton, QVBoxLayout
 from PySide2.QtWidgets import QWidget
@@ -42,7 +47,7 @@ class ClassificationLabelButtonsWidget(QWidget):
                 self.labelList.addWidget(self.labelButtons[index], alignment=Qt.AlignLeft)
                 self.labelButtons[index].clicked.connect(self.manuallySelectLabel)
         except AttributeError:
-            print('ok')
+            console.debug('ok')
             # Console.debug('42 is loaded')
 
     # def refreshLabelButton(self):

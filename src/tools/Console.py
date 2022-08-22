@@ -22,7 +22,7 @@ class Console:
         return pong
     
     def colored(self, r, g, b, text):
-        return "\033[38;2;{};{};{}m{}\033[38;2;255;255;255m".format(r, g, b, text)
+        return f"\033[38;2;{r};{g};{b}m{text}\033[38;2;255;255;255m"
     
     def setOwner(self, owner):
         self.filename = owner.split('Window')[0].split('\\')[-1]
